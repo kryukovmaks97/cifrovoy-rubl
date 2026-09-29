@@ -1,479 +1,1092 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Цифровой рубль: курс для педагогов</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Цифровой рубль: интерактивный курс для педагогов</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-        }
+    :root {
+        --primary: #1a3a6b;
+        --secondary: #2d6bc4;
+        --accent: #1a8a5c;
+        --warning: #f0ad4e;
+        --danger: #d9534f;
+        --bg-light: #f5f8ff;
+        --text: #333;
+        --card-bg: #ffffff;
+    }
 
-        /* Шапка */
+    body.dark {
+        --primary: #0d1b2a;
+        --secondary: #1b3a5c;
+        --bg-light: #1a2332;
+        --text: #e0e0e0;
+        --card-bg: #243447;
+    }
+
+    body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        line-height: 1.6;
+        color: var(--text);
+        background: var(--card-bg);
+        transition: background 0.4s, color 0.4s;
+    }
+
+    /* Прогресс-бар прокрутки */
+    #progressBar {
+        position: fixed;
+        top: 0; left: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--accent), var(--secondary));
+        width: 0%;
+        z-index: 1000;
+        transition: width 0.1s;
+    }
+
+    /* Шапка */
+    header {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        padding: 15px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.2);
+    }
+
+    header h1 { font-size: 1.2rem; }
+
+    nav { display: flex; gap: 20px; align-items: center; }
+
+    nav a {
+        color: white;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: opacity 0.3s;
+    }
+    nav a:hover { opacity: 0.7; }
+
+    .theme-toggle {
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background 0.3s;
+    }
+    .theme-toggle:hover { background: rgba(255,255,255,0.3); }
+
+    /* Hero */
+    .hero {
+        background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+        background-size: 200% 200%;
+        animation: gradientShift 10s ease infinite;
+        color: white;
+        text-align: center;
+        padding: 90px 20px;
+    }
+
+    @keyframes gradientShift {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+    }
+
+    .hero h2 { font-size: 2.4rem; margin-bottom: 20px; }
+    .hero p { font-size: 1.15rem; max-width: 750px; margin: 0 auto 30px; opacity: 0.95; }
+
+    .btn {
+        display: inline-block;
+        background: var(--accent);
+        color: white;
+        padding: 14px 36px;
+        border-radius: 50px;
+        text-decoration: none;
+        font-size: 1rem;
+        transition: transform 0.3s, box-shadow 0.3s;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+    }
+    .btn:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+    .btn-outline {
+        background: transparent;
+        border: 2px solid white;
+    }
+    .btn-outline:hover { background: white; color: var(--primary); }
+
+    /* Секции */
+    section {
+        padding: 70px 40px;
+        max-width: 1150px;
+        margin: 0 auto;
+    }
+
+    section h3 {
+        font-size: 1.9rem;
+        color: var(--primary);
+        margin-bottom: 15px;
+        text-align: center;
+    }
+    body.dark section h3 { color: #7eb8ff; }
+
+    .section-subtitle {
+        text-align: center;
+        color: #666;
+        margin-bottom: 45px;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    body.dark .section-subtitle { color: #aaa; }
+
+    /* Карточки */
+    .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 25px;
+    }
+
+    .card {
+        background: var(--card-bg);
+        border-radius: 15px;
+        padding: 28px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        transition: transform 0.3s, box-shadow 0.3s;
+        border-top: 4px solid var(--secondary);
+    }
+    .card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    }
+    .card h4 {
+        color: var(--primary);
+        margin-bottom: 12px;
+        font-size: 1.2rem;
+    }
+    body.dark .card h4 { color: #7eb8ff; }
+
+    /* Анимация появления при прокрутке */
+    .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.7s, transform 0.7s;
+    }
+    .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Таблица */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 25px;
+        background: var(--card-bg);
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+    th {
+        background: var(--primary);
+        color: white;
+        padding: 15px;
+        text-align: left;
+        font-size: 0.95rem;
+    }
+    td {
+        padding: 15px;
+        border-bottom: 1px solid rgba(0,0,0,0.08);
+    }
+    body.dark td { border-bottom: 1px solid rgba(255,255,255,0.1); }
+
+    /* Таймлайн истории */
+    .timeline {
+        position: relative;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px 0;
+    }
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 30px;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: linear-gradient(180deg, var(--secondary), var(--accent));
+    }
+    .timeline-item {
+        position: relative;
+        padding-left: 80px;
+        margin-bottom: 35px;
+    }
+    .timeline-item::before {
+        content: attr(data-year);
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 60px;
+        height: 60px;
+        background: var(--secondary);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.75rem;
+        text-align: center;
+        line-height: 1.1;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .timeline-item h5 {
+        color: var(--primary);
+        margin-bottom: 8px;
+        font-size: 1.1rem;
+    }
+    body.dark .timeline-item h5 { color: #7eb8ff; }
+
+    /* Аккордеон (словарь, мифы) */
+    .accordion-item {
+        background: var(--card-bg);
+        border-radius: 10px;
+        margin-bottom: 12px;
+        overflow: hidden;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+    }
+    .accordion-header {
+        padding: 18px 24px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 600;
+        color: var(--primary);
+        transition: background 0.3s;
+    }
+    body.dark .accordion-header { color: #7eb8ff; }
+    .accordion-header:hover { background: var(--bg-light); }
+    .accordion-header::after {
+        content: '＋';
+        font-size: 1.3rem;
+        transition: transform 0.3s;
+    }
+    .accordion-item.active .accordion-header::after {
+        content: '−';
+    }
+    .accordion-body {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease, padding 0.3s;
+        padding: 0 24px;
+        color: var(--text);
+    }
+    .accordion-item.active .accordion-body {
+        max-height: 500px;
+        padding: 0 24px 20px;
+    }
+
+    /* Игра «Выбери форму валюты» */
+    .game-container {
+        background: var(--bg-light);
+        border-radius: 20px;
+        padding: 35px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .game-scenario {
+        font-size: 1.1rem;
+        margin-bottom: 25px;
+        padding: 20px;
+        background: var(--card-bg);
+        border-radius: 12px;
+        border-left: 5px solid var(--secondary);
+    }
+    .game-options {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    .game-option {
+        padding: 20px;
+        background: var(--card-bg);
+        border: 2px solid transparent;
+        border-radius: 12px;
+        cursor: pointer;
+        text-align: center;
+        font-weight: 600;
+        transition: all 0.3s;
+        color: var(--text);
+    }
+    .game-option:hover {
+        border-color: var(--secondary);
+        transform: translateY(-3px);
+    }
+    .game-option.correct {
+        background: #d4edda;
+        border-color: var(--accent);
+        color: #155724;
+    }
+    .game-option.wrong {
+        background: #f8d7da;
+        border-color: var(--danger);
+        color: #721c24;
+    }
+    .game-feedback {
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 15px;
+        font-weight: 500;
+        display: none;
+    }
+    .game-feedback.show { display: block; }
+    .game-feedback.success {
+        background: #d4edda;
+        color: #155724;
+    }
+    .game-feedback.error {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    .game-score {
+        text-align: center;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: var(--primary);
+        margin-top: 20px;
+    }
+    body.dark .game-score { color: #7eb8ff; }
+
+    /* Квиз с таймером */
+    .quiz-container {
+        background: var(--bg-light);
+        border-radius: 20px;
+        padding: 35px;
+        max-width: 750px;
+        margin: 0 auto;
+    }
+    .quiz-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid rgba(0,0,0,0.08);
+    }
+    .quiz-timer {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: var(--danger);
+        background: white;
+        padding: 8px 18px;
+        border-radius: 25px;
+    }
+    body.dark .quiz-timer { background: #1a2332; }
+    .quiz-progress-text {
+        font-weight: 600;
+        color: var(--primary);
+    }
+    body.dark .quiz-progress-text { color: #7eb8ff; }
+
+    .question { margin-bottom: 25px; }
+    .question p {
+        font-weight: bold;
+        margin-bottom: 12px;
+        font-size: 1.05rem;
+    }
+    .question label {
+        display: block;
+        padding: 12px 18px;
+        margin-bottom: 8px;
+        background: var(--card-bg);
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background 0.3s, transform 0.2s;
+        border: 2px solid transparent;
+    }
+    .question label:hover {
+        background: #e8f0fe;
+        transform: translateX(5px);
+    }
+    body.dark .question label:hover { background: #2d4a6b; }
+    .question input { margin-right: 10px; }
+
+    /* Кейсы */
+    .case-card {
+        background: var(--card-bg);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        border-left: 5px solid var(--warning);
+    }
+    .case-card h5 {
+        color: var(--primary);
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+    }
+    body.dark .case-card h5 { color: #7eb8ff; }
+    .case-card .case-questions {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px dashed rgba(0,0,0,0.1);
+    }
+    body.dark .case-card .case-questions { border-top-color: rgba(255,255,255,0.1); }
+    .case-card .case-questions li {
+        margin-left: 20px;
+        margin-bottom: 6px;
+        color: #555;
+    }
+    body.dark .case-card .case-questions li { color: #bbb; }
+
+    /* Результат */
+    #result {
+        margin-top: 20px;
+        font-size: 1.15rem;
+        font-weight: bold;
+        text-align: center;
+        padding: 20px;
+        border-radius: 12px;
+        display: none;
+    }
+    #result.show { display: block; }
+
+    /* Подвал */
+    footer {
+        background: var(--primary);
+        color: white;
+        padding: 45px 40px;
+        text-align: center;
+    }
+    footer a { color: #7ec8a0; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    footer .footer-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 30px;
+        max-width: 900px;
+        margin: 0 auto 30px;
+        text-align: left;
+    }
+    footer h6 {
+        font-size: 1rem;
+        margin-bottom: 12px;
+        color: #7ec8a0;
+    }
+    footer p, footer ul { font-size: 0.9rem; opacity: 0.85; }
+    footer ul { list-style: none; }
+    footer li { margin-bottom: 6px; }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
         header {
-            background: linear-gradient(135deg, #1a3a6b, #2d6bc4);
-            color: white;
-            padding: 20px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            flex-direction: column;
+            gap: 12px;
+            padding: 15px 20px;
         }
-
-        header h1 {
-            font-size: 1.4rem;
-        }
-
-        nav a {
-            color: white;
-            text-decoration: none;
-            margin-left: 25px;
-            font-size: 0.95rem;
-            transition: opacity 0.3s;
-        }
-
-        nav a:hover {
-            opacity: 0.7;
-        }
-
-        /* Hero-блок */
-        .hero {
-            background: linear-gradient(135deg, #1a3a6b, #2d6bc4, #1a8a5c);
-            color: white;
-            text-align: center;
-            padding: 100px 20px;
-        }
-
-        .hero h2 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            max-width: 700px;
-            margin: 0 auto 30px;
-            opacity: 0.9;
-        }
-
-        .btn {
-            display: inline-block;
-            background: #1a8a5c;
-            color: white;
-            padding: 15px 40px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-size: 1.1rem;
-            transition: transform 0.3s, box-shadow 0.3s;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-        }
-
-        /* Секции */
-        section {
-            padding: 80px 40px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        section h3 {
-            font-size: 2rem;
-            color: #1a3a6b;
-            margin-bottom: 40px;
-            text-align: center;
-        }
-
-        /* Карточки */
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-        }
-
-        .card {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-            border-top: 4px solid #2d6bc4;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-        }
-
-        .card h4 {
-            color: #1a3a6b;
-            margin-bottom: 15px;
-            font-size: 1.3rem;
-        }
-
-        /* Таблица */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 30px;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        }
-
-        th {
-            background: #1a3a6b;
-            color: white;
-            padding: 15px;
-            text-align: left;
-        }
-
-        td {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-        }
-
-        tr:hover {
-            background: #f5f8ff;
-        }
-
-        /* Тест */
-        .quiz {
-            background: #f5f8ff;
-            border-radius: 15px;
-            padding: 40px;
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        .question {
-            margin-bottom: 25px;
-        }
-
-        .question p {
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .question label {
-            display: block;
-            padding: 10px 15px;
-            margin-bottom: 8px;
-            background: white;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .question label:hover {
-            background: #e8f0fe;
-        }
-
-        .question input {
-            margin-right: 10px;
-        }
-
-        #result {
-            margin-top: 20px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        /* Подвал */
-        footer {
-            background: #1a3a6b;
-            color: white;
-            padding: 40px;
-            text-align: center;
-        }
-
-        footer a {
-            color: #7ec8a0;
-            text-decoration: none;
-        }
-
-        footer a:hover {
-            text-decoration: underline;
-        }
-
-        /* Адаптивность */
-        @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            nav a {
-                margin: 0 10px;
-                font-size: 0.85rem;
-            }
-
-            .hero h2 {
-                font-size: 1.8rem;
-            }
-
-            section {
-                padding: 50px 20px;
-            }
-        }
-    </style>
+        nav { flex-wrap: wrap; justify-content: center; gap: 12px; }
+        nav a { font-size: 0.8rem; }
+        .hero h2 { font-size: 1.7rem; }
+        .hero p { font-size: 1rem; }
+        section { padding: 45px 18px; }
+        section h3 { font-size: 1.4rem; }
+        .game-options { grid-template-columns: 1fr; }
+        .timeline-item { padding-left: 70px; }
+        .timeline-item::before { width: 50px; height: 50px; font-size: 0.65rem; }
+    }
+</style>
 </head>
 <body>
 
-    <!-- Шапка -->
-    <header>
-        <h1>Цифровой рубль: курс для педагогов</h1>
-        <nav>
-            <a href="#about">О рубле</a>
-            <a href="#how">Как работает</a>
-            <a href="#materials">Материалы</a>
-            <a href="#quiz">Тест</a>
-            <a href="#links">Ссылки</a>
-        </nav>
-    </header>
+<!-- Прогресс-бар прокрутки -->
+<div id="progressBar"></div>
 
-    <!-- Hero -->
-    <div class="hero">
-        <h2>Цифровой рубль: новая финансовая реальность</h2>
-        <p>Всё, что нужно знать педагогу о третьей форме российского рубля — и как объяснить это школьникам</p>
-        <a href="#about" class="btn">Начать обучение</a>
+<!-- Шапка -->
+<header>
+    <h1>💰 Цифровой рубль: курс для педагогов</h1>
+    <nav>
+        <a href="#history">История</a>
+        <a href="#about">О рубле</a>
+        <a href="#game">Игра</a>
+        <a href="#myths">Мифы</a>
+        <a href="#cases">Кейсы</a>
+        <a href="#quiz">Квиз</a>
+        <a href="#glossary">Словарь</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
+    </nav>
+</header>
+
+<!-- Hero -->
+<div class="hero">
+    <h2>Цифровой рубль: новая финансовая реальность</h2>
+    <p>Интерактивный образовательный курс для педагогов и наставников. Узнайте всё о третьей форме российского рубля и получите готовые материалы для занятий.</p>
+    <a href="#history" class="btn">Начать обучение</a>
+    <a href="#materials" class="btn btn-outline" style="margin-left: 10px;">Материалы</a>
+</div>
+
+<!-- 1. История денег -->
+<section id="history" class="fade-in">
+    <h3>📜 История денег: от ракушек до цифрового рубля</h3>
+    <p class="section-subtitle">Как менялись деньги на протяжении тысячелетий — и почему цифровой рубль стал логичным продолжением эволюции.</p>
+
+    <div class="timeline">
+        <div class="timeline-item" data-year="до н.э.">
+            <h5>Товарные деньги</h5>
+            <p>Ракушки каури, соль, скот, зерно. Люди обменивались тем, что имело ценность. Это неудобно: тяжело носить, сложно делить.</p>
+        </div>
+        <div class="timeline-item" data-year="VII в. до н.э.">
+            <h5>Первые монеты</h5>
+            <p>В Лидии (территория современной Турции) начали чеканить монеты из электрума. Деньги стали компактными и стандартными.</p>
+        </div>
+        <div class="timeline-item" data-year="IX–X вв.">
+            <h5>Бумажные деньги</h5>
+            <p>В Китае появились первые бумажные банкноты. В России — ассигнации при Екатерине II (1769). Удобно, но легко подделать.</p>
+        </div>
+        <div class="timeline-item" data-year="XX в.">
+            <h5>Электронные деньги</h5>
+            <p>Банковские карты, интернет-банкинг, мобильные платежи. Деньги стали «невидимыми» — просто цифры на счёте.</p>
+        </div>
+        <div class="timeline-item" data-year="2026">
+            <h5>Цифровой рубль</h5>
+            <p>Третья форма валюты: код на платформе Банка России. Массовое внедрение с 1 сентября 2026 года.</p>
+        </div>
+    </div>
+</section>
+
+<!-- 2. О рубле -->
+<section id="about" style="background: var(--bg-light);" class="fade-in">
+    <h3>💵 Что такое цифровой рубль</h3>
+    <p class="section-subtitle">Цифровой рубль — это третья форма российского рубля, которая существует в виде цифрового кода на платформе Банка России. Он дополняет наличные и безналичные деньги, но не заменяет их.</p>
+
+    <div class="cards">
+        <div class="card">
+            <h4>💵 Наличные</h4>
+            <p>Хранятся в кошельке. Выпускает Банк России. Комиссий нет. Смарт-контракты недоступны. Работают без интернета.</p>
+        </div>
+        <div class="card">
+            <h4>💳 Безналичные</h4>
+            <p>Хранятся на счёте в банке. Выпускает Банк России. Есть комиссии за переводы. Смарт-контракты недоступны.</p>
+        </div>
+        <div class="card">
+            <h4>🔢 Цифровые</h4>
+            <p>Хранятся в цифровом кошельке на платформе ЦБ. Комиссий для граждан нет. Смарт-контракты доступны. Работают офлайн.</p>
+        </div>
     </div>
 
-    <!-- О рубле -->
-    <section id="about">
-        <h3>Что такое цифровой рубль</h3>
-        <p style="text-align: center; max-width: 800px; margin: 0 auto 40px;">
-            Цифровой рубль — это третья форма российского рубля, которая существует 
-            в виде цифрового кода на платформе Банка России. Он дополняет наличные 
-            и безналичные деньги, но не заменяет их.
-        </p>
+    <table>
+        <tr>
+            <th>Критерий</th>
+            <th>Наличные</th>
+            <th>Безналичные</th>
+            <th>Цифровые</th>
+        </tr>
+        <tr><td>Где хранятся</td><td>В кошельке</td><td>На счёте в банке</td><td>В цифровом кошельке ЦБ</td></tr>
+        <tr><td>Кто выпускает</td><td>Банк России</td><td>Банк России</td><td>Банк России</td></tr>
+        <tr><td>Комиссии для граждан</td><td>Нет</td><td>Есть</td><td>Нет</td></tr>
+        <tr><td>Смарт-контракты</td><td>Нет</td><td>Нет</td><td>Да</td></tr>
+        <tr><td>Офлайн-режим</td><td>Да</td><td>Нет</td><td>Да</td></tr>
+        <tr><td>Доступ через банк</td><td>—</td><td>Только свой банк</td><td>Любой банк</td></tr>
+    </table>
+</section>
 
-        <div class="cards">
-            <div class="card">
-                <h4>Наличные</h4>
-                <p>Хранятся в кошельке. Выпускает Банк России. Комиссий нет. Смарт-контракты недоступны.</p>
-            </div>
-            <div class="card">
-                <h4>Безналичные</h4>
-                <p>Хранятся на счёте в банке. Выпускает Банк России. Есть комиссии. Смарт-контракты недоступны.</p>
-            </div>
-            <div class="card">
-                <h4>Цифровые</h4>
-                <p>Хранятся в цифровом кошельке на платформе ЦБ. Комиссий для граждан нет. Смарт-контракты доступны.</p>
-            </div>
+<!-- 3. Игра «Выбери форму валюты» -->
+<section id="game" class="fade-in">
+    <h3>🎮 Игра: выбери правильную форму валюты</h3>
+    <p class="section-subtitle">Прочитай ситуацию и выбери, какая форма российского рубля подойдёт лучше всего.</p>
+
+    <div class="game-container">
+        <div class="game-scenario" id="scenario">Нажми «Начать игру», чтобы получить первую ситуацию.</div>
+        <div class="game-options" id="gameOptions" style="display: none;">
+            <button class="game-option" onclick="checkAnswer('cash')">💵 Наличные</button>
+            <button class="game-option" onclick="checkAnswer('card')">💳 Безналичные</button>
+            <button class="game-option" onclick="checkAnswer('digital')">🔢 Цифровые</button>
         </div>
+        <div class="game-feedback" id="gameFeedback"></div>
+        <div class="game-score" id="gameScore" style="display: none;">Очки: 0 / 5</div>
+        <button class="btn" id="startGameBtn" onclick="startGame()" style="display: block; margin: 20px auto 0;">Начать игру</button>
+        <button class="btn" id="nextScenarioBtn" onclick="nextScenario()" style="display: none; margin: 20px auto 0;">Следующая ситуация →</button>
+    </div>
+</section>
 
-        <table>
-            <tr>
-                <th>Критерий</th>
-                <th>Наличные</th>
-                <th>Безналичные</th>
-                <th>Цифровые</th>
-            </tr>
-            <tr>
-                <td>Где хранятся</td>
-                <td>В кошельке</td>
-                <td>На счёте в банке</td>
-                <td>В цифровом кошельке</td>
-            </tr>
-            <tr>
-                <td>Комиссии</td>
-                <td>Нет</td>
-                <td>Есть</td>
-                <td>Нет для граждан</td>
-            </tr>
-            <tr>
-                <td>Смарт-контракты</td>
-                <td>Нет</td>
-                <td>Нет</td>
-                <td>Да</td>
-            </tr>
-            <tr>
-                <td>Офлайн-режим</td>
-                <td>Да</td>
-                <td>Нет</td>
-                <td>Да</td>
-            </tr>
-        </table>
-    </section>
+<!-- 4. Мифы -->
+<section id="myths" style="background: var(--bg-light);" class="fade-in">
+    <h3>❌ Мифы о цифровом рубле</h3>
+    <p class="section-subtitle">Развенчиваем популярные заблуждения. Нажми на миф, чтобы увидеть правду.</p>
 
-    <!-- Как работает -->
-    <section id="how" style="background: #f5f8ff;">
-        <h3>Как это работает</h3>
-        <div class="cards">
-            <div class="card">
-                <h4>1. Открытие кошелька</h4>
-                <p>Гражданин открывает цифровой кошелёк через приложение любого банка.</p>
-            </div>
-            <div class="card">
-                <h4>2. Пополнение</h4>
-                <p>Переводит деньги с банковского счёта на цифровой кошелёк.</p>
-            </div>
-            <div class="card">
-                <h4>3. Использование</h4>
-                <p>Платит, переводит, использует смарт-контракты для автоматизации сделок.</p>
-            </div>
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">Миф: цифровой рубль — это криптовалюта</div>
+        <div class="accordion-body"><p><strong>Правда:</strong> Нет. Цифровой рубль — это государственная валюта, которую выпускает Банк России. У неё есть эмитент и обеспечение. Криптовалюты (биткоин и др.) — децентрализованы, не имеют эмитента и не обеспечены государством.</p></div>
+    </div>
+
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">Миф: цифровой рубль заменит наличные и безналичные</div>
+        <div class="accordion-body"><p><strong>Правда:</strong> Нет. Все три формы будут существовать параллельно. Вы сами решаете, какой формой пользоваться. Никто не заставит вас отказаться от наличных.</p></div>
+    </div>
+
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">Миф: государство будет видеть все мои покупки</div>
+        <div class="accordion-body"><p><strong>Правда:</strong> Банк России видит только факт транзакции, но не видит, что именно вы купили. Детали покупки остаются в банке. Это такая же конфиденциальность, как у безналичных денег.</p></div>
+    </div>
+
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">Миф: цифровой рубль можно потерять, если пропадёт интернет</div>
+        <div class="accordion-body"><p><strong>Правда:</strong> Нет. Цифровой рубль работает в офлайн-режиме — можно платить даже без интернета. Это одна из его ключевых особенностей.</p></div>
+    </div>
+
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">Миф: цифровым рублём нельзя пользоваться без смартфона</div>
+        <div class="accordion-body"><p><strong>Правда:</strong> Можно. Помимо приложения, доступ будет через банкоматы и отделения банков. Также разрабатываются специальные носители (карты) для оплаты без телефона.</p></div>
+    </div>
+</section>
+
+<!-- 5. Кейсы -->
+<section id="cases" class="fade-in">
+    <h3>💼 Кейсы для обсуждения на занятии</h3>
+    <p class="section-subtitle">Готовые ситуации для групповой работы с учениками. Можно использовать на уроках или внеурочных занятиях.</p>
+
+    <div class="case-card">
+        <h5>Кейс 1. Бабушка и цифровой рубль</h5>
+        <p>Бабушка пенсионерка боится, что её заставят перевести все деньги в цифровые рубли. Она не понимает, чем это отличается от обычной карты.</p>
+        <div class="case-questions">
+            <p><strong>Вопросы для обсуждения:</strong></p>
+            <ul>
+                <li>Как объяснить бабушке, что такое цифровой рубль?</li>
+                <li>Какие страхи людей о цифровом рубле обоснованы, а какие — нет?</li>
+                <li>Какие аргументы помогут ей успокоиться?</li>
+            </ul>
         </div>
-    </section>
+    </div>
 
-    <!-- Материалы -->
-    <section id="materials">
-        <h3>Методические материалы</h3>
-        <div class="cards">
-            <div class="card">
-                <h4>План занятия</h4>
-                <p>Готовый план занятия «Три формы российского рубля» с хронометражем и активностями.</p>
-                <a href="#" class="btn" style="margin-top: 15px; font-size: 0.9rem; padding: 10px 25px;">Скачать PDF</a>
-            </div>
-            <div class="card">
-                <h4>Сценарий игры</h4>
-                <p>Командная активность «Финансовый детектив» для закрепления материала.</p>
-                <a href="#" class="btn" style="margin-top: 15px; font-size: 0.9rem; padding: 10px 25px;">Скачать PDF</a>
-            </div>
-            <div class="card">
-                <h4>Инфографика</h4>
-                <p>Наглядная схема «Три формы валюты» для использования на занятии.</p>
-                <a href="#" class="btn" style="margin-top: 15px; font-size: 0.9rem; padding: 10px 25px;">Скачать PNG</a>
-            </div>
+    <div class="case-card">
+        <h5>Кейс 2. Смарт-контракт в школьной столовой</h5>
+        <p>Школа хочет внедрить цифровой рубль для оплаты питания. Родители переживают, что деньги будут списываться автоматически без их согласия.</p>
+        <div class="case-questions">
+            <p><strong>Вопросы для обсуждения:</strong></p>
+            <ul>
+                <li>Как работает смарт-контракт?</li>
+                <li>Какие условия можно задать в смарт-контракте, чтобы защитить родителей?</li>
+                <li>Какие риски нужно предусмотреть?</li>
+            </ul>
         </div>
-    </section>
+    </div>
 
-    <!-- Тест -->
-    <section id="quiz">
-        <h3>Проверь себя</h3>
-        <div class="quiz">
-            <form id="quizForm">
-                <div class="question">
-                    <p>1. Что такое цифровой рубль?</p>
-                    <label><input type="radio" name="q1" value="a"> Новая криптовалюта</label>
-                    <label><input type="radio" name="q1" value="b"> Третья форма российского рубля</label>
-                    <label><input type="radio" name="q1" value="c"> Валюта другой страны</label>
-                </div>
-
-                <div class="question">
-                    <p>2. Где хранится цифровой рубль?</p>
-                    <label><input type="radio" name="q2" value="a"> В кошельке</label>
-                    <label><input type="radio" name="q2" value="b"> На счёте в банке</label>
-                    <label><input type="radio" name="q2" value="c"> В цифровом кошельке на платформе Банка России</label>
-                </div>
-
-                <div class="question">
-                    <p>3. Кто выпускает цифровой рубль?</p>
-                    <label><input type="radio" name="q3" value="a"> Коммерческие банки</label>
-                    <label><input type="radio" name="q3" value="b"> Банк России</label>
-                    <label><input type="radio" name="q3" value="c"> Частные компании</label>
-                </div>
-
-                <div class="question">
-                    <p>4. Что такое смарт-контракт?</p>
-                    <label><input type="radio" name="q4" value="a"> Договор, который выполняется автоматически</label>
-                    <label><input type="radio" name="q4" value="b"> Бумажный договор</label>
-                    <label><input type="radio" name="q4" value="c"> Устная договорённость</label>
-                </div>
-
-                <div class="question">
-                    <p>5. Может ли цифровой рубль работать без интернета?</p>
-                    <label><input type="radio" name="q5" value="a"> Нет</label>
-                    <label><input type="radio" name="q5" value="b"> Да, в офлайн-режиме</label>
-                    <label><input type="radio" name="q5" value="c"> Только через банк</label>
-                </div>
-
-                <button type="button" class="btn" onclick="checkQuiz()" style="width: 100%;">Проверить результат</button>
-            </form>
-            <div id="result"></div>
+    <div class="case-card">
+        <h5>Кейс 3. Мошенники и цифровой рубль</h5>
+        <p>Пожилому человеку звонит «сотрудник банка» и говорит, что нужно срочно перевести деньги на «защищённый цифровой счёт», иначе их украдут.</p>
+        <div class="case-questions">
+            <p><strong>Вопросы для обсуждения:</strong></p>
+            <ul>
+                <li>Какие признаки мошенничества видны в этой ситуации?</li>
+                <li>Как правильно реагировать на такой звонок?</li>
+                <li>Чем отличается настоящий цифровой кошелёк от «защищённого счёта» мошенников?</li>
+            </ul>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Ссылки -->
-    <section id="links" style="background: #f5f8ff;">
-        <h3>Полезные ссылки</h3>
-        <div class="cards">
-            <div class="card">
-                <h4>Банк России</h4>
-                <p><a href="https://cbr.ru" target="_blank">cbr.ru</a> — официальная информация о цифровом рубле.</p>
-            </div>
-            <div class="card">
-                <h4>Финансовая грамотность</h4>
-                <p><a href="https://fincult.info" target="_blank">fincult.info</a> — портал для педагогов и граждан.</p>
-            </div>
-            <div class="card">
-                <h4>Минфин России</h4>
-                <p><a href="https://minfin.gov.ru" target="_blank">minfin.gov.ru</a> — документы и разъяснения.</p>
-            </div>
+<!-- 6. Квиз с таймером -->
+<section id="quiz" style="background: var(--bg-light);" class="fade-in">
+    <h3>🧠 Квиз: проверь свои знания</h3>
+    <p class="section-subtitle">5 вопросов с таймером. У тебя 60 секунд на каждый вопрос. Готов?</p>
+
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <span class="quiz-progress-text" id="quizProgress">Вопрос 1 из 5</span>
+            <span class="quiz-timer" id="quizTimer">⏱ 60</span>
         </div>
-    </section>
+        <form id="quizForm">
+            <!-- Вопросы генерируются через JS -->
+        </form>
+        <div id="result"></div>
+        <button class="btn" id="quizStartBtn" onclick="startQuiz()" style="display: block; margin: 20px auto 0;">Начать квиз</button>
+        <button class="btn" id="quizNextBtn" onclick="nextQuestion()" style="display: none; margin: 20px auto 0;">Следующий вопрос →</button>
+    </div>
+</section>
 
-    <!-- Подвал -->
-    <footer>
-        <p>Образовательный сайт «Цифровой рубль: курс для педагогов»</p>
-        <p style="margin-top: 10px;">Автор: [ФИО] | Использованные нейросети: ChatGPT, DeepSeek, Алиса AI</p>
-        <p style="margin-top: 10px;"><a href="mailto:email@example.com">Обратная связь</a></p>
-    </footer>
+<!-- 7. Словарь -->
+<section id="glossary" class="fade-in">
+    <h3>📖 Словарь терминов</h3>
+    <p class="section-subtitle">Ключевые понятия, которые пригодятся на занятии. Нажми на термин, чтобы увидеть определение.</p>
 
-    <script>
-        function checkQuiz() {
-            const answers = {
-                q1: 'b',
-                q2: 'c',
-                q3: 'b',
-                q4: 'a',
-                q5: 'b'
-            };
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">Цифровой рубль</div>
+        <div class="accordion-body"><p>Третья форма российского рубля, существующая в виде цифрового кода на платформе Банка России. Дополняет наличные и безналичные деньги.</p></div>
+    </div>
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">Цифровой кошелёк</div>
+        <div class="accordion-body"><p>Приложение или сервис, через который пользователь хранит и использует цифровые рубли. Открывается через любой банк.</p></div>
+    </div>
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">Смарт-контракт</div>
+        <div class="accordion-body"><p>Программа, которая автоматически выполняет условия договора при наступлении определённых событий. Например, автоматически переводит деньги за товар после доставки.</p></div>
+    </div>
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">Платформа Банка России</div>
+        <div class="accordion-body"><p>Техническая инфраструктура, на которой работают цифровые рубли. Обеспечивает безопасность, скорость и доступность операций.</p></div>
+    </div>
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">Офлайн-режим</div>
+        <div class="accordion-body"><p>Возможность совершать платежи цифровым рублём без подключения к интернету. Уникальная особенность этой формы валюты.</p></div>
+    </div>
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">Фиатные деньги</div>
+        <div class="accordion-body"><p>Деньги, выпускаемые государством и не обеспеченные физическим эквивалентом (золотом). К ним относятся рубли, доллары, евро.</p></div>
+    </div>
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">CBDC (Digital Currency)</div>
+        <div class="accordion-body"><p>Central Bank Digital Currency — цифровая валюта центрального банка. Цифровой рубль — это CBDC Банка России.</p></div>
+    </div>
+</section>
 
-            let score = 0;
-            let total = Object.keys(answers).length;
-            let allAnswered = true;
+<!-- 8. Методические материалы -->
+<section id="materials" style="background: var(--bg-light);" class="fade-in">
+    <h3>📚 Методические материалы для педагога</h3>
+    <p class="section-subtitle">Готовые инструменты для проведения занятия по теме цифрового рубля.</p>
 
-            for (let key in answers) {
-                const selected = document.querySelector(`input[name="${key}"]:checked`);
-                if (!selected) {
-                    allAnswered = false;
-                    break;
-                }
-                if (selected.value === answers[key]) {
-                    score++;
-                }
+    <div class="cards">
+        <div class="card">
+            <h4>📄 План занятия</h4>
+            <p>Готовый план на 45 минут: цели, этапы, активности, хронометраж.</p>
+        </div>
+        <div class="card">
+            <h4>🎯 Сценарий игры</h4>
+            <p>Командная активность «Финансовый детектив» для закрепления материала.</p>
+        </div>
+        <div class="card">
+            <h4>📊 Инфографика</h4>
+            <p>Наглядная схема «Три формы валюты» для использования на занятии.</p>
+        </div>
+        <div class="card">
+            <h4>✅ Чек-лист педагога</h4>
+            <p>Что нужно знать педагогу о цифровом рубле перед занятием.</p>
+        </div>
+    </div>
+</section>
+
+<!-- 9. Полезные ссылки -->
+<section id="links" class="fade-in">
+    <h3>🔗 Полезные ссылки</h3>
+    <p class="section-subtitle">Официальные источники информации о цифровом рубле.</p>
+
+    <div class="cards">
+        <div class="card">
+            <h4>🏛 Банк России</h4>
+            <p><a href="https://cbr.ru" target="_blank">cbr.ru</a> — официальная информация о цифровом рубле.</p>
+        </div>
+        <div class="card">
+            <h4>📈 Финансовая грамотность</h4>
+            <p><a href="https://fincult.info" target="_blank">fincult.info</a> — портал для педагогов и граждан.</p>
+        </div>
+        <div class="card">
+            <h4>🏢 Минфин России</h4>
+            <p><a href="https://minfin.gov.ru" target="_blank">minfin.gov.ru</a> — документы и разъяснения.</p>
+        </div>
+        <div class="card">
+            <h4>🎓 Федеральный методический центр</h4>
+            <p><a href="https://fmc-education.ru" target="_blank">fmc-education.ru</a> — методические материалы по финграмотности.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Подвал -->
+<footer>
+    <div class="footer-grid">
+        <div>
+            <h6>О проекте</h6>
+            <p>Образовательный сайт «Цифровой рубль: курс для педагогов». Создан в рамках лабораторной работы с использованием нейросетей.</p>
+        </div>
+        <div>
+            <h6>Разделы</h6>
+            <ul>
+                <li><a href="#history">История денег</a></li>
+                <li><a href="#about">О цифровом рубле</a></li>
+                <li><a href="#game">Игра</a></li>
+                <li><a href="#quiz">Квиз</a></li>
+                <li><a href="#glossary">Словарь</a></li>
+            </ul>
+        </div>
+        <div>
+            <h6>Источники</h6>
+            <ul>
+                <li><a href="https://cbr.ru" target="_blank">Банк России</a></li>
+                <li><a href="https://fincult.info" target="_blank">fincult.info</a></li>
+                <li><a href="https://minfin.gov.ru" target="_blank">Минфин России</a></li>
+            </ul>
+        </div>
+    </div>
+    <p>© 2026 Цифровой рубль: курс для педагогов | Нейросети: ChatGPT, DeepSeek, Алиса AI</p>
+</footer>
+
+<script>
+    /* === Тема === */
+    function toggleTheme() {
+        document.body.classList.toggle('dark');
+        const btn = document.getElementById('themeBtn');
+        btn.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
+        localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+    }
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark');
+        document.getElementById('themeBtn').textContent = '☀️';
+    }
+
+    /* === Прогресс-бар прокрутки === */
+    window.addEventListener('scroll', () => {
+        const winScroll = document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        document.getElementById('progressBar').style.width = scrolled + '%';
+    });
+
+    /* === Анимация появления === */
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
             }
+        });
+    }, { threshold: 0.1 });
 
-            const resultDiv = document.getElementById('result');
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
-            if (!allAnswered) {
-                resultDiv.innerHTML = '⚠️ Пожалуйста, ответьте на все вопросы.';
-                resultDiv.style.color = '#d9534f';
-                return;
-            }
+    /* === Аккордеон === */
+    function toggleAccordion(header) {
+        const item = header.parentElement;
+        item.classList.toggle('active');
+    }
 
-            let message = '';
-            if (score === total) {
-                message = '🏅 Отлично! Вы отлично разбираетесь в цифровом рубле.';
-                resultDiv.style.color = '#1a8a5c';
-            } else if (score >= 3) {
-                message = '📋 Хорошо! Но есть что повторить.';
-                resultDiv.style.color = '#f0ad4e';
-            } else {
-                message = '📝 Рекомендуем вернуться к теории и попробовать снова.';
-                resultDiv.style.color = '#d9534f';
-            }
-
-            resultDiv.innerHTML = `Ваш результат: ${score} из ${total}. ${message}`;
+    /* === Игра «Выбери форму валюты» === */
+    const scenarios = [
+        {
+            text: "Вы в магазине, у вас разрядился телефон, а интернета нет. Нужно оплатить покупку. Какая форма валюты подойдёт?",
+            answer: 'digital',
+            explanation: 'Цифровой рубль работает в офлайн-режиме. Это его ключевое преимущество.'
+        },
+        {
+            text: "Вы хотите подарить бабушке деньги на день рождения, но она не пользуется смартфоном. Что выбрать?",
+            answer: 'cash',
+            explanation: 'Наличные — самый простой и понятный вариант для старшего поколения.'
+        },
+        {
+            text: "Вам нужно автоматически оплачивать подписку на образовательный сервис каждый месяц. Что лучше?",
+            answer: 'digital',
+            explanation: 'Смарт-контракты цифрового рубля позволяют настроить автоматические платежи без посредников.'
+        },
+        {
+            text: "Вы хотите перевести деньги другу в другой город, и чтобы комиссии не было. Что выбрать?",
+            answer: 'digital',
+            explanation: 'Переводы цифровых рублей между гражданами — без комиссии.'
+        },
+        {
+            text: "Вы едете в деревню, где нет банкоматов, но есть небольшой магазин. Чем удобнее расплатиться?",
+            answer: 'digital',
+            explanation: 'Цифровой рубль работает офлайн и доступен даже без банкоматов.'
         }
-    </script>
+    ];
+
+    let currentScenario = 0;
+    let gameScore = 0;
+
+    function startGame() {
+        currentScenario = 0;
+        gameScore = 0;
+        document.getElementById('gameScore').style.display = 'block';
+        document.getElementById('gameScore').textContent = 'Очки: 0 / ' + scenarios.length;
+        document.getElementById('startGameBtn').style.display = 'none';
+        document.getElementById('gameOptions').style.display = 'grid';
+        showScenario();
+    }
+
+    function showScenario() {
+        const s = scenarios[currentScenario];
+        document.getElementById('scenario').textContent = s.text;
+        document.getElementById('gameFeedback').className = 'game-feedback';
+        document.getElementById('gameFeedback').textContent = '';
+        document.querySelectorAll('.game-option').forEach(btn => {
+            btn.classList.remove('correct', 'wrong');
+            btn.disabled = false;
+        });
+        document.getElementById('nextScenarioBtn').style.display = 'none';
+    }
+
+    function checkAnswer(choice) {
+        const s = scenarios[currentScenario];
+        const feedback = document.getElementById('gameFeedback');
+        const buttons = document.querySelectorAll('.game-option');
+        buttons.forEach(btn => btn.disabled = true);
+
+        if (choice === s.answer) {
+            gameScore++;
+            feedback.className = 'game-feedback show success';
+            feedback.textContent = '✅ Верно! ' + s.explanation;
+            event.target.classList.add('correct');
+        } else {
+            feedback.className = 'game-feedback show error';
+            feedback.textContent = '❌ Не совсем. ' + s.explanation;
+            event.target.classList.add('wrong');
+        }
+        document.getElementById('gameScore').textContent = `Очки: ${gameScore} / ${scenarios.length}`;
+
+        if (currentScenario < scenarios.length - 1) {
+            document.getElementById('nextScenarioBtn').style.display = 'block';
+        } else {
+            feedback.textContent += ` 🎉 Игра завершена! Ваш результат: ${gameScore} из ${scenarios.length}.`;
+            document.getElementById('startGameBtn').textContent = 'Играть снова';
+            document.getElementById('startGameBtn').style.display = 'block';
+        }
+    }
+
+    function nextScenario() {
+        currentScenario++;
+        showScenario();
+    }
+
+    /* === Квиз с таймером === */
+    const quizQuestions = [
+        {
+            q: "Что такое цифровой рубль?",
+            options: [
+                { text: "Новая криптовалюта", correct: false },
+                { text: "Третья форма российского рубля", correct: true },
+                { text: "Валюта другой страны", correct: false }
+            ]
+        },
+        {
+            q: "Где хранится цифровой рубль?",
+            options: [
+                { text: "В кошельке", correct: false },
+                { text: "На счёте в банке", correct: false },
+                { text: "В цифровом кошельке на платформе Банка России", correct: true }
+            ]
+        },
+        {
+            q: "Что такое смарт-контракт?",
+            options: [
+                { text: "Договор, который выполняется автоматически", correct: true },
+                { text: "Бумажный договор", correct: false },
+                { text: "Устная договорённость", correct: false }
+            ]
+        },
+        {
+            q: "Может ли цифровой рубль работать без интернета?",
+            options: [
+                { text: "Нет, только онлайн", correct: false },
+                { text: "Да, в офлайн-режиме", correct: true },
+                { text: "Только через банкомат", correct: false }
+            ]
+        },
+        {
+            q: "Заменят ли цифровые рубли наличные и безналичные?",
+            options: [
+                { text: "Да, полностью заменят", correct: false },
+                { text: "Нет, все три формы будут существовать параллельно", correct: true },
+                { text: "Заменят только безналичные", correct: false }
+            ]
+        }
+    ];
+
+    let currentQuestion = 0;
+    let quizScore = 0;
+    let timerInterval;
+    let timeLeft = 60;
+
+    function startQuiz() {
+        currentQuestion = 0;
+        quizScore = 0;
+        document.getElementById('quizStartBtn').style.display = 'none';
+        document.getElementById('result').className = '';
+        document.getElementById('result').style.display = 'none';
+        renderQuestion();
+    }
+
+    function renderQuestion() {
+        const q = quizQuestions[currentQuestion];
+        document.getElementById('quizProgress').textContent = `Вопрос ${currentQuestion + 1} из ${quizQuestions.length}`;
+
+        let html = `<div class="question"><p>${q.q}</p>`;
+        q.options.forEach((opt, i) => {
+            html += `<label><input type="radio" name="q" value="${i}"> ${opt.text}</label>`;
+        });
+        html += `</div>`;
+        document.getElementById('quizForm').innerHTML = html;
+
+        document.getElementById('quizNextBtn').style.display = 'block';
+        document.getElementById('quizNextBtn').textContent = currentQuestion < quizQuestions.length - 1 ? 'Ответить →' : 'Завершить';
+
+        startTimer();
+    }
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = 60;
+        document.getElementById('quizTimer').textContent = '⏱ ' + timeLeft;
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            document.getElementById('quizTimer').textContent = '⏱ ' + timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                nextQuestion();
+            }
+        }, 1000);
+    }
+
+    function nextQuestion() {
+        clearInterval(timerInterval);
+        const selected = document.querySelector('input[name="q"]:checked');
+
+        if (currentQuestion < quizQuestions.length - 1) {
+            if (selected && quizQuestions[currentQuestion].options[selected.value].correct) {
+                quizScore++;
+            }
+            currentQuestion++;
+            renderQuestion();
+        } else {
+            if (selected && quizQuestions[currentQuestion].options[selected.value].correct) {
+                quizScore++;
+            }
+            showResult();
+        }
+    }
+
+    function showResult() {
+        document.getElementById('quizForm').innerHTML = '';
+        document.getElementById('quizNextBtn').style.display = 'none';
+        document.getElementById('quizTimer').style.display = 'none';
+
+        const resultDiv = document.getElementById('result');
+        const percent = (quizScore / quizQuestions.length) * 100;
+
+        let message = '';
+        let color = '';
+
+        if (percent === 100) {
+            message = '🏅 Отлично! Вы отлично разбираетесь в цифровом рубле.';
+            color = '#1a8a5c';
+        } else if (percent >= 60) {
+            message = '📋 Хорошо! Но есть что повторить.';
+            color = '#f0ad4e';
+        } else {
+            message = '📝 Рекомендуем вернуться к теории и попробовать снова.';
+            color = '#d9534f';
+        }
+
+        resultDiv.style.background = color + '20';
+        resultDiv.style.color = color;
+        resultDiv.innerHTML = `Ваш результат: ${quizScore} из ${quizQuestions.length}<br>${message}`;
+        resultDiv.className = 'show';
+        resultDiv.style.display = 'block';
+        document.getElementById('quizStartBtn').style.display = 'block';
+        document.getElementById('quizStartBtn').textContent = 'Пройти заново';
+    }
+</script>
 
 </body>
 </html>
